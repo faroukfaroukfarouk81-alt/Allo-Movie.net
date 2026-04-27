@@ -847,39 +847,58 @@
 <!-- ===== JAVASCRIPT ===== -->
 <script>
 /* =========================================================
-   DEMO DATA — En production, remplacez par l'API TMDB
-   Voir tmdb-api.js pour la logique de connexion réelle
+   TMDB API — Clé intégrée
    ========================================================= */
+const TMDB_KEY   = '6881247daf17fbe318f9553dd2798f29';
+const TMDB_BASE  = 'https://api.themoviedb.org/3';
+const TMDB_IMG   = 'https://image.tmdb.org/t/p/w500';
+const TMDB_BIG   = 'https://image.tmdb.org/t/p/original';
+const LANG       = 'fr-FR';
 
-const DEMO_FILMS = [
-  { id:1, title:"Orbital Escape", year:2026, genre:"Sci-Fi", rating:8.1, badge:"new",    youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&q=80", desc:"Un astronaute doit survivre seul dans l'espace infini." },
-  { id:2, title:"La Dernière Forêt", year:2026, genre:"Thriller", rating:7.8, badge:"hot",   youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80", desc:"Un groupe perd contact avec la civilisation." },
-  { id:3, title:"Neon Uprising", year:2025, genre:"Action", rating:7.5, badge:"",      youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80", desc:"Une rebellion dans une ville cyberpunk." },
-  { id:4, title:"Les Ombres du Passé", year:2026, genre:"Drame", rating:8.6, badge:"new",    youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=400&q=80", desc:"Un homme redécouvre son histoire familiale." },
-  { id:5, title:"Chrome Hearts", year:2026, genre:"Romance", rating:7.2, badge:"",      youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1535016120720-40c646be5580?w=400&q=80", desc:"Amour au temps des machines." },
-  { id:6, title:"Deep Surge", year:2026, genre:"Horreur", rating:7.9, badge:"hot",    youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1544502062-f82887f03d1c?w=400&q=80", desc:"Les profondeurs cachent des secrets terrifiants." },
-  { id:7, title:"Quantum Fable", year:2026, genre:"Fantastique", rating:8.3, badge:"new",    youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=80", desc:"Un voyage au coeur des multivers." },
-  { id:8, title:"Boulevard Fantôme", year:2026, genre:"Comédie", rating:7.0, badge:"",      youtubeId:"dQw4w9WgXcQ", poster:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80", desc:"Une ville fantôme, un héros improbable." },
-];
+let ALL_FILMS = [];
 
-const UPCOMING = [
-  { title:"Matrix: Reborn", genre:"Sci-Fi", director:"L. Wachowski", date:"14 mai 2026", isNew:true },
-  { title:"Astérix & la Cité Perdue", genre:"Animation", director:"A. Astier", date:"28 mai 2026", isNew:false },
-  { title:"Black Storm", genre:"Action", director:"M. Bay", date:"11 juin 2026", isNew:true },
-  { title:"Les Fantômes de Paris", genre:"Drame", director:"C. Audiard", date:"25 juin 2026", isNew:false },
-  { title:"Space Odyssey 2", genre:"Sci-Fi", director:"D. Villeneuve", date:"09 juil. 2026", isNew:false },
-];
+/* =========================================================
+   TMDB FETCH
+   ========================================================= */
+async function tmdb(endpoint) {
+  const sep = endpoint.includes('?') ? '&' : '?';
+  const res = await fetch(`${TMDB_BASE}${endpoint}${sep}api_key=${TMDB_KEY}&language=${LANG}`);
+  return res.json();
+}
+
+async function getTrailer(movieId) {
+  try {
+    let data = await tmdb(`/movie/${movieId}/videos`);
+    let t = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+    if (!t) {
+      data = await fetch(`${TMDB_BASE}/movie/${movieId}/videos?api_key=${TMDB_KEY}&language=en-US`).then(r=>r.json());
+      t = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+    }
+    return t ? t.key : null;
+  } catch { return null; }
+}
+
+function isNew(dateStr) {
+  if (!dateStr) return false;
+  return (Date.now() - new Date(dateStr)) / 86400000 <= 30;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+}
 
 /* =========================================================
    RENDER FUNCTIONS
    ========================================================= */
-
 function filmCard(film) {
+  const desc = (film.desc||'').replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+  const title = (film.title||'').replace(/'/g,"&#39;");
   return `
-  <div class="film-card" onclick="openModal('${film.youtubeId}','${film.title}','${film.year} • ${film.genre}','${film.desc}')">
+  <div class="film-card" onclick="openModal('${film.youtubeId||''}','${title}','${film.year} • ${film.genre}','${desc}')">
     <div class="card-poster">
-      <img src="${film.poster}" alt="${film.title}" loading="lazy" />
-      ${film.badge ? `<span class="badge ${film.badge}">${film.badge === 'new' ? 'Nouveau' : film.badge === 'hot' ? '🔥 Tendance' : 'Bientôt'}</span>` : ''}
+      <img src="${film.poster}" alt="${film.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80'" />
+      ${film.badge ? `<span class="badge ${film.badge}">${film.badge==='new'?'Nouveau':film.badge==='hot'?'🔥 Tendance':'Bientôt'}</span>` : ''}
       <div class="card-play-overlay">
         <div class="play-btn-circle">
           <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -897,31 +916,32 @@ function filmCard(film) {
   </div>`;
 }
 
-function renderGrid(containerId, films) {
-  document.getElementById(containerId).innerHTML = films.map(filmCard).join('');
+function renderGrid(id, films) {
+  document.getElementById(id).innerHTML = films.length
+    ? films.map(filmCard).join('')
+    : '<p style="color:var(--text-muted);padding:20px">Chargement...</p>';
 }
 
-function renderRow(containerId, films) {
-  document.getElementById(containerId).innerHTML = films.map(filmCard).join('');
+function renderRow(id, films) {
+  document.getElementById(id).innerHTML = films.map(filmCard).join('');
 }
 
-function renderUpcoming() {
+function renderUpcoming(movies) {
   const tbody = document.querySelector('#upcomingTable tbody');
-  tbody.innerHTML = UPCOMING.map(r => `
-    <tr onclick="/* link to film page */">
-      <td>${r.title}</td>
-      <td><span class="card-genre" style="font-size:12px;">${r.genre}</span></td>
-      <td style="color:var(--text-muted)">${r.director}</td>
-      <td><span class="date-badge">${r.date}</span></td>
-      <td>${r.isNew ? '<span class="new-badge">NEW</span>' : ''}</td>
+  tbody.innerHTML = movies.slice(0,8).map(m => `
+    <tr>
+      <td>${m.title}</td>
+      <td><span class="card-genre" style="font-size:12px;">Film</span></td>
+      <td style="color:var(--text-muted)">—</td>
+      <td><span class="date-badge">${formatDate(m.release_date)}</span></td>
+      <td>${isNew(m.release_date)?'<span class="new-badge">NEW</span>':''}</td>
     </tr>`).join('');
 }
 
-function renderHeroStrip() {
-  const strip = document.getElementById('heroStrip');
-  strip.innerHTML = DEMO_FILMS.slice(0,4).map((f, i) => `
+function renderHeroStrip(films) {
+  document.getElementById('heroStrip').innerHTML = films.slice(0,4).map((f,i) => `
     <div class="hero-strip-item ${i===0?'active':''}" onclick="event.stopPropagation()">
-      <img src="${f.poster}" alt="${f.title}" loading="lazy" />
+      <img src="${f.poster}" alt="${f.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80'" />
     </div>`).join('');
 }
 
@@ -929,10 +949,12 @@ function renderHeroStrip() {
    MODAL
    ========================================================= */
 function openModal(youtubeId, title, meta, desc) {
-  document.getElementById('modalIframe').src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+  if (youtubeId) {
+    document.getElementById('modalIframe').src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+  }
   document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalMeta').textContent = meta;
-  document.getElementById('modalDesc').textContent = desc;
+  document.getElementById('modalMeta').textContent  = meta;
+  document.getElementById('modalDesc').textContent  = desc;
   document.getElementById('modal').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -944,32 +966,108 @@ function closeModal(e) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal({target: document.getElementById('modal')}); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal({target: document.getElementById('modal')});
+});
 
 /* =========================================================
-   SEARCH FILTER
+   SEARCH
    ========================================================= */
-function filterFilms(query) {
-  const q = query.toLowerCase();
-  const filtered = DEMO_FILMS.filter(f =>
-    f.title.toLowerCase().includes(q) || f.genre.toLowerCase().includes(q)
+function filterFilms(q) {
+  const query = q.toLowerCase();
+  const filtered = ALL_FILMS.filter(f =>
+    f.title.toLowerCase().includes(query) || f.genre.toLowerCase().includes(query)
   );
-  renderGrid('newTrailersGrid', filtered.length ? filtered : DEMO_FILMS);
+  renderGrid('newTrailersGrid', filtered.length ? filtered : ALL_FILMS);
 }
 
 function loadMoreFilms() {
-  alert('En production: charge la page /trailers ou appelle TMDB API /movie/upcoming');
+  window.scrollTo({top: document.getElementById('popularGrid').offsetTop - 80, behavior:'smooth'});
 }
 
 /* =========================================================
-   INIT
+   SQUELETTES DE CHARGEMENT
    ========================================================= */
-renderGrid('newTrailersGrid', DEMO_FILMS);
-renderRow('weeklyReleasesRow', DEMO_FILMS.slice(0,6));
-renderGrid('popularGrid', [...DEMO_FILMS].sort((a,b) => b.rating - a.rating));
-renderUpcoming();
-renderHeroStrip();
+function showSkeletons(id, count = 8) {
+  document.getElementById(id).innerHTML = Array(count).fill(`
+    <div class="film-card">
+      <div class="card-poster skeleton" style="aspect-ratio:2/3"></div>
+      <div class="card-body">
+        <div class="skeleton" style="height:16px;margin-bottom:8px;border-radius:4px"></div>
+        <div class="skeleton" style="height:12px;width:60%;border-radius:4px"></div>
+      </div>
+    </div>`).join('');
+}
+
+/* =========================================================
+   INIT TMDB
+   ========================================================= */
+async function init() {
+  // Skeletons
+  showSkeletons('newTrailersGrid');
+  showSkeletons('popularGrid');
+
+  try {
+    // 1. Genres
+    const genreData = await tmdb('/genre/movie/list');
+    const genres = Object.fromEntries(genreData.genres.map(g => [g.id, g.name]));
+
+    // 2. Films populaires
+    const popData = await tmdb('/movie/popular?region=FR');
+    const movies  = popData.results.slice(0, 12);
+
+    // 3. Trailers (les 6 premiers seulement pour ne pas dépasser les limites)
+    const filmsWithData = await Promise.all(movies.map(async (m, i) => {
+      const youtubeId = i < 6 ? await getTrailer(m.id) : null;
+      return {
+        id:        m.id,
+        title:     m.title,
+        year:      m.release_date?.slice(0,4) || '2026',
+        genre:     genres[m.genre_ids?.[0]] || 'Cinéma',
+        rating:    m.vote_average?.toFixed(1) || '—',
+        poster:    m.poster_path ? TMDB_IMG + m.poster_path : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80',
+        backdrop:  m.backdrop_path ? TMDB_BIG + m.backdrop_path : '',
+        desc:      m.overview || '',
+        badge:     isNew(m.release_date) ? 'new' : i < 3 ? 'hot' : '',
+        youtubeId: youtubeId || '',
+      };
+    }));
+
+    ALL_FILMS = filmsWithData;
+
+    // 4. Hero
+    const hero = filmsWithData[0];
+    if (hero) {
+      document.getElementById('heroTitle').textContent = hero.title.toUpperCase();
+      document.getElementById('heroDesc').textContent  = hero.desc;
+      if (hero.backdrop) document.querySelector('.hero-img').src = hero.backdrop;
+      document.getElementById('heroCard').onclick = () =>
+        openModal(hero.youtubeId, hero.title, `${hero.year} • ${hero.genre}`, hero.desc);
+      document.querySelector('.btn-watch').onclick = (e) => {
+        e.stopPropagation();
+        openModal(hero.youtubeId, hero.title, `${hero.year} • ${hero.genre}`, hero.desc);
+      };
+    }
+
+    // 5. Grilles
+    renderGrid('newTrailersGrid', filmsWithData.slice(0, 8));
+    renderRow('weeklyReleasesRow', filmsWithData.slice(0, 6));
+    renderGrid('popularGrid', [...filmsWithData].sort((a,b) => b.rating - a.rating).slice(0,8));
+    renderHeroStrip(filmsWithData);
+
+    // 6. Prochaines sorties
+    const upData = await tmdb('/movie/upcoming?region=FR');
+    renderUpcoming(upData.results);
+
+  } catch(err) {
+    console.error('Erreur TMDB:', err);
+    document.getElementById('newTrailersGrid').innerHTML =
+      '<p style="color:var(--text-muted);padding:20px;grid-column:1/-1">⚠️ Impossible de charger les films. Vérifiez votre connexion.</p>';
+  }
+}
+
+// Lancement
+init();
 </script>
 </body>
 </html>
-.
