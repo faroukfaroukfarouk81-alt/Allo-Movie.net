@@ -867,8 +867,13 @@
     <button class="modal-close" onclick="closeModal()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
-    <div class="video-container">
+    <div class="video-container" id="videoContainer">
       <iframe id="modalIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+    <div id="noTrailer" style="display:none; padding:48px 24px; text-align:center;">
+      <div style="font-size:48px; margin-bottom:16px;">🎬</div>
+      <p style="color:#b3b3b3; font-size:15px;">Trailer non disponible pour ce film</p>
+      <p style="color:#555; font-size:13px; margin-top:8px;">Aucune bande-annonce YouTube n'a été trouvée</p>
     </div>
     <div class="modal-info">
       <h2 id="modalTitle">—</h2>
@@ -974,9 +979,20 @@ function renderUpcoming(movies) {
    MODAL
    ========================================================= */
 function openModal(youtubeId, title, meta, desc) {
+  const videoContainer = document.getElementById('videoContainer');
+  const noTrailer      = document.getElementById('noTrailer');
+  const iframe         = document.getElementById('modalIframe');
+
   if (youtubeId) {
-    document.getElementById('modalIframe').src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+    iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+    videoContainer.style.display = 'block';
+    noTrailer.style.display      = 'none';
+  } else {
+    iframe.src = '';
+    videoContainer.style.display = 'none';
+    noTrailer.style.display      = 'block';
   }
+
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('modalMeta').textContent  = meta;
   document.getElementById('modalDesc').textContent  = desc;
