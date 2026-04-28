@@ -62,20 +62,38 @@ header{position:sticky;top:0;z-index:100;background:rgba(8,12,16,0.95);backdrop-
 .card-title{font-weight:600;font-size:12px;line-height:1.3;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card-meta{display:flex;gap:5px;flex-wrap:wrap;font-size:10px;color:var(--muted)}
 .genre-tag{background:var(--hover);padding:1px 5px;border-radius:3px;border:1px solid var(--border)}
-@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
-.skel{background:linear-gradient(90deg,var(--card) 25%,var(--hover) 50%,var(--card) 75%);background-size:600px 100%;animation:shimmer 1.4s infinite;border-radius:var(--r)}
+
+/* MODAL MODIFIÉE AVEC AVIS */
 .modal-bg{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
 .modal-bg.open{opacity:1;pointer-events:all}
-.modal-box{position:relative;width:min(860px,96vw);background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;transform:scale(0.9);transition:transform .3s}
+.modal-box{position:relative;width:min(860px,96vw);max-height:90vh;background:var(--card);border-radius:16px;border:1px solid var(--border);overflow-y:auto;transform:scale(0.9);transition:transform .3s}
 .modal-bg.open .modal-box{transform:scale(1)}
 .modal-close{position:absolute;top:12px;right:12px;z-index:10;width:34px;height:34px;background:rgba(0,0,0,0.7);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--txt)}
 .modal-close:hover{background:var(--red)}
 .video-wrap{position:relative;width:100%;padding-top:56.25%}
 .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
-.modal-info{padding:16px 20px}
-.modal-info h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;margin-bottom:6px}
-.modal-info .meta{color:var(--muted);font-size:13px;margin-bottom:8px}
-.modal-info p{font-size:14px;color:rgba(232,234,240,0.75);line-height:1.6}
+.modal-info{padding:20px}
+.modal-info h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1.5px;margin-bottom:8px}
+.modal-info .meta{color:var(--muted);font-size:13px;margin-bottom:12px}
+.modal-info p{font-size:14px;color:rgba(232,234,240,0.75);line-height:1.6;margin-bottom:20px}
+
+/* SECTION AVIS */
+.review-section{border-top:1px solid var(--border);padding-top:20px;margin-top:20px}
+.review-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;margin-bottom:15px;color:var(--gold)}
+.review-form{background:rgba(255,255,255,0.03);padding:15px;border-radius:12px;margin-bottom:20px;border:1px solid var(--border)}
+.stars{display:flex;gap:5px;margin-bottom:10px}
+.stars button{font-size:22px;color:var(--dim);transition:color 0.2s}
+.stars button.active{color:var(--gold)}
+.review-form input, .review-form textarea{width:100%;background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:8px;color:var(--txt);font-family:inherit;margin-bottom:10px;outline:none}
+.review-form textarea{height:60px;resize:none}
+.btn-post{background:var(--red);color:white;padding:8px 20px;border-radius:8px;font-weight:700;width:100%;font-size:13px}
+.reviews-list{display:flex;flex-direction:column;gap:12px}
+.review-item{background:var(--hover);padding:12px;border-radius:10px;border-left:3px solid var(--red)}
+.rev-hdr{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.rev-name{font-weight:700;color:var(--txt)}
+.rev-note{color:var(--gold)}
+.rev-text{font-size:13px;color:var(--muted)}
+
 .table-wrap{background:var(--card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 thead tr{border-bottom:2px solid var(--border)}
@@ -197,169 +215,4 @@ footer{border-top:1px solid var(--border);padding:32px 16px 90px;margin-top:40px
 
 <footer>
   <div class="footer-inner">
-    <div class="footer-logo">ALLO<span style="color:var(--red)">-</span>MOVIE<span style="color:var(--gold);font-size:8px">●</span>NET</div>
-    <p class="footer-txt">Votre source quotidienne pour les bandes-annonces et sorties cinéma en France.</p>
-    <div class="footer-links">
-      <a href="#">Accueil</a><a href="#">Bandes-annonces</a><a href="#">Séries</a>
-      <a href="#">Action</a><a href="#">Horreur</a><a href="#">Animation</a>
-      <a href="#">Contact</a><a href="#">Mentions légales</a>
-    </div>
-    <p class="footer-copy">© 2026 Allo-Movie.net · Données: <a href="https://www.themoviedb.org" style="color:var(--red)">TMDB</a></p>
-  </div>
-</footer>
-
-<div class="ad-sticky" id="stickyAd">
-  <div class="ad-sticky-inner">📢 ESPACE PUBLICITAIRE STICKY — AdSense 728×60</div>
-  <div class="ad-x" onclick="document.getElementById('stickyAd').style.display='none'">✕</div>
-</div>
-
-<div class="modal-bg" id="modal" onclick="closeModal(event)">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <div class="video-wrap"><iframe id="modalFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>
-    <div class="modal-info">
-      <h2 id="mTitle">—</h2>
-      <div class="meta" id="mMeta"></div>
-      <p id="mDesc"></p>
-    </div>
-  </div>
-</div>
-
-<script>
-const KEY='6881247daf17fbe318f9553dd2798f29',BASE='https://api.themoviedb.org/3',IMG='https://image.tmdb.org/t/p/w500',BIG='https://image.tmdb.org/t/p/original',LANG='fr-FR';
-let ALL=[];
-
-async function api(p){const s=p.includes('?')?'&':'?';const r=await fetch(`${BASE}${p}${s}api_key=${KEY}&language=${LANG}`);return r.json();}
-
-async function trailer(id,type='movie'){
-  try{
-    let d=await api(`/${type}/${id}/videos`);
-    let t=d.results.find(v=>v.type==='Trailer'&&v.site==='YouTube');
-    if(!t){const r=await fetch(`${BASE}/${type}/${id}/videos?api_key=${KEY}&language=en-US`);const d2=await r.json();t=d2.results.find(v=>v.type==='Trailer'&&v.site==='YouTube');}
-    return t?t.key:'';
-  }catch{return'';}
-}
-
-function isNew(d){return d&&(Date.now()-new Date(d))/86400000<=30;}
-function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
-
-function card(f){
-  const t=(f.title||'').replace(/'/g,"&#39;").replace(/"/g,'&quot;');
-  const d=(f.desc||'').replace(/'/g,"&#39;").replace(/"/g,'&quot;');
-  return`<div class="card" onclick="openModal('${f.yt}','${t}','${f.year} · ${f.genre}','${d}')">
-    <div class="card-poster">
-      <img src="${f.img}" alt="${f.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80'"/>
-      ${f.badge?`<span class="badge ${f.badge}">${f.badge==='new'?'Nouveau':'🔥'}</span>`:''}
-      <div class="overlay"><div class="play-circle"><svg width="15" height="15" fill="white" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
-      <div class="rating">★ ${f.rating}</div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">${f.title}</div>
-      <div class="card-meta"><span>${f.year}</span><span class="genre-tag">${f.genre}</span></div>
-    </div>
-  </div>`;
-}
-
-function toFilm(m,genres,badge='',yt=''){
-  return{id:m.id,title:m.title||m.name||'',year:(m.release_date||m.first_air_date||'2026').slice(0,4),genre:genres[m.genre_ids?.[0]]||'Cinéma',rating:(m.vote_average||0).toFixed(1),img:m.poster_path?IMG+m.poster_path:'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80',backdrop:m.backdrop_path?BIG+m.backdrop_path:'',desc:m.overview||'',badge,yt};
-}
-
-function fillGrid(id,films){const el=document.getElementById(id);if(el)el.innerHTML=films.map(card).join('');}
-function fillRow(id,films){const el=document.getElementById(id);if(el)el.innerHTML=films.map(card).join('');}
-
-function skelCards(id,n=8){
-  const el=document.getElementById(id);if(!el)return;
-  el.innerHTML=Array(n).fill(`<div class="card"><div class="card-poster skel" style="aspect-ratio:2/3"></div><div class="card-body"><div class="skel" style="height:12px;margin-bottom:6px;border-radius:4px"></div><div class="skel" style="height:10px;width:55%;border-radius:4px"></div></div></div>`).join('');
-}
-
-function openModal(yt,title,meta,desc){
-  document.getElementById('modalFrame').src=yt?`https://www.youtube.com/embed/${yt}?autoplay=1&rel=0`:'';
-  document.getElementById('mTitle').textContent=title;
-  document.getElementById('mMeta').textContent=meta;
-  document.getElementById('mDesc').textContent=desc;
-  document.getElementById('modal').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeModal(e){
-  if(e&&e.target!==document.getElementById('modal')&&!e.target.closest('.modal-close'))return;
-  document.getElementById('modal').classList.remove('open');
-  document.getElementById('modalFrame').src='';
-  document.body.style.overflow='';
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal({target:document.getElementById('modal')});});
-
-function filterFilms(q){
-  const query=q.toLowerCase();
-  const f=ALL.filter(x=>x.title.toLowerCase().includes(query)||x.genre.toLowerCase().includes(query));
-  fillGrid('gridTrailers',f.length?f.slice(0,8):ALL.slice(0,8));
-}
-
-async function init(){
-  ['gridTrailers','gridTop','gridBest'].forEach(id=>skelCards(id));
-  ['rowTV','rowAction','rowHorreur','rowAnim','rowScifi','rowComedy','rowDocs'].forEach(id=>skelCards(id,6));
-
-  try{
-    const[gm,gtv]=await Promise.all([api('/genre/movie/list'),api('/genre/tv/list')]);
-    const GM=Object.fromEntries(gm.genres.map(g=>[g.id,g.name]));
-    const GT=Object.fromEntries(gtv.genres.map(g=>[g.id,g.name]));
-
-    const[pop,top,upc,act,hor,ani,sci,com,doc,tv]=await Promise.all([
-      api('/movie/popular?region=FR'),
-      api('/movie/top_rated?region=FR'),
-      api('/movie/upcoming?region=FR'),
-      api('/discover/movie?with_genres=28&sort_by=popularity.desc'),
-      api('/discover/movie?with_genres=27&sort_by=popularity.desc'),
-      api('/discover/movie?with_genres=16&sort_by=popularity.desc'),
-      api('/discover/movie?with_genres=878&sort_by=popularity.desc'),
-      api('/discover/movie?with_genres=35&sort_by=popularity.desc'),
-      api('/discover/movie?with_genres=99&sort_by=popularity.desc'),
-      api('/tv/popular'),
-    ]);
-
-    const popMovies=pop.results.slice(0,8);
-    const withYT=await Promise.all(popMovies.map(async(m,i)=>{
-      const yt=i<6?await trailer(m.id):'';
-      return toFilm(m,GM,isNew(m.release_date)?'new':i<3?'hot':'',yt);
-    }));
-
-    ALL=withYT;
-
-    const h=withYT[0];
-    if(h){
-      document.getElementById('heroTitle').textContent=h.title.toUpperCase();
-      document.getElementById('heroDesc').textContent=h.desc;
-      document.getElementById('heroRating').textContent='★ '+h.rating;
-      document.getElementById('heroYear').textContent=h.year;
-      document.getElementById('heroGenre').textContent=h.genre;
-      if(h.backdrop)document.getElementById('heroImg').src=h.backdrop;
-      const fn=()=>openModal(h.yt,h.title,h.year+' · '+h.genre,h.desc);
-      document.getElementById('heroBtn').onclick=fn;
-      document.getElementById('heroCard').onclick=fn;
-    }
-
-    fillGrid('gridTrailers',withYT);
-    fillGrid('gridTop',pop.results.slice(0,8).map(m=>toFilm(m,GM,isNew(m.release_date)?'new':'')));
-    fillGrid('gridBest',top.results.slice(0,8).map(m=>toFilm(m,GM)));
-    fillRow('rowTV',tv.results.slice(0,12).map(m=>toFilm(m,GT,isNew(m.first_air_date)?'new':'')));
-    fillRow('rowAction',act.results.slice(0,12).map(m=>toFilm(m,GM,isNew(m.release_date)?'new':'')));
-    fillRow('rowHorreur',hor.results.slice(0,12).map(m=>toFilm(m,GM,isNew(m.release_date)?'new':'')));
-    fillRow('rowAnim',ani.results.slice(0,12).map(m=>toFilm(m,GM,isNew(m.release_date)?'new':'')));
-    fillRow('rowScifi',sci.results.slice(0,12).map(m=>toFilm(m,GM,isNew(m.release_date)?'new':'')));
-    fillRow('rowComedy',com.results.slice(0,12).map(m=>toFilm(m,GM)));
-    fillRow('rowDocs',doc.results.slice(0,12).map(m=>toFilm(m,GM)));
-
-    const tb=document.getElementById('tbodyUpcoming');
-    if(tb)tb.innerHTML=upc.results.slice(0,10).map(m=>`<tr><td>${m.title}</td><td><span class="genre-tag" style="font-size:10px">${GM[m.genre_ids?.[0]]||'Film'}</span></td><td><span class="date-tag">${fmtDate(m.release_date)}</span></td><td>${isNew(m.release_date)?'<span class="new-tag">NEW</span>':''}</td></tr>`).join('');
-
-  }catch(err){
-    console.error('Erreur:',err);
-    document.getElementById('gridTrailers').innerHTML='<p style="color:var(--muted);padding:20px;grid-column:1/-1">⚠️ Erreur de chargement. Rechargez la page.</p>';
-  }
-}
-
-init();
-</script>
-</body>
-</html>
+    <div class="footer-logo">ALLO<span style="color:var(--red)">-</span>MOVIE<span style="color:var(--
